@@ -1,12 +1,13 @@
 import { Bell, ChevronRight, Download, Ruler, Settings2, ShieldCheck } from "lucide-react-native";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WeekChart } from "@/components/Profile/WeekChart";
 import { Rise } from "@/components/Rise";
 import { Panel } from "@/components/ui/Panel";
 import { Press } from "@/components/ui/Press";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { ScreenTitle } from "@/components/ui/ScreenTitle";
 import { Toggle } from "@/components/ui/Toggle";
 import { DRONE, PILOT } from "@/constants/data";
@@ -61,7 +62,10 @@ const Go = ({ value }: { value?: string }) => (
 
 export const Profile = () => {
   const insets = useSafeAreaInsets();
-  const shown = useShown();
+  const focused = useShown();
+  const [syncing, setSyncing] = useState(false);
+  // Numbers, the level bar and the chart all replay after a sync.
+  const shown = focused && !syncing;
   const [alerts, setAlerts] = useState(true);
   const level = useSharedValue(0);
   const float = useSharedValue(0);
@@ -78,8 +82,8 @@ export const Profile = () => {
 
   return (
     <View style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: 130 }}>
-        <Rise show={shown} delay={0}>
+      <PullToRefresh onRefresh={() => setSyncing(true)} onSettled={() => setSyncing(false)} contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: 130 }}>
+        <Rise show={focused} delay={0}>
           <ScreenTitle
             eyebrow="PILOT"
             title="Profile"
@@ -91,7 +95,7 @@ export const Profile = () => {
           />
         </Rise>
 
-        <Rise show={shown} delay={90} style={styles.gap}>
+        <Rise show={focused} delay={90} style={styles.gap}>
           <Panel>
             <View style={styles.who}>
               <View style={styles.avatar}>
@@ -119,11 +123,11 @@ export const Profile = () => {
           </Panel>
         </Rise>
 
-        <Rise show={shown} delay={180} style={styles.gap}>
+        <Rise show={focused} delay={180} style={styles.gap}>
           <WeekChart show={shown} />
         </Rise>
 
-        <Rise show={shown} delay={270} style={[styles.gap, styles.fleet]}>
+        <Rise show={focused} delay={270} style={[styles.gap, styles.fleet]}>
           <View style={styles.fleetWords}>
             <Text style={styles.fleetLabel}>MY FLEET</Text>
             <Text style={styles.fleetName}>{DRONE.name}</Text>
@@ -138,7 +142,7 @@ export const Profile = () => {
           </Animated.View>
         </Rise>
 
-        <Rise show={shown} delay={360} style={styles.gap}>
+        <Rise show={focused} delay={360} style={styles.gap}>
           <Panel style={styles.list}>
             <Row Icon={Ruler} title="Units" right={<Go value="Metric" />} />
             <Row Icon={ShieldCheck} title="Safety and geofence" right={<Go />} />
@@ -155,7 +159,7 @@ export const Profile = () => {
             />
           </Panel>
         </Rise>
-      </ScrollView>
+      </PullToRefresh>
     </View>
   );
 };

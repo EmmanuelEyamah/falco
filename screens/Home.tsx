@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, { Extrapolation, interpolate, useAnimatedStyle } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Header } from "@/components/Home/Header";
@@ -6,6 +7,7 @@ import { HeroCard } from "@/components/Home/HeroCard";
 import { MissionCard } from "@/components/Home/MissionCard";
 import { StatsRow } from "@/components/Home/StatsRow";
 import { Rise } from "@/components/Rise";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { MISSIONS } from "@/constants/data";
 import { useFlightControl } from "@/hooks/useFlightControl";
 import { useShown } from "@/hooks/useShown";
@@ -28,6 +30,9 @@ export const Home = () => {
   const autoLaunch = useFlightStore((s) => s.autoLaunch);
   const { launch } = useFlightControl();
   const shown = useShown();
+  // While a sync runs the readings drop to zero, then climb back: it reads as fresh data arriving.
+  const [syncing, setSyncing] = useState(false);
+  const live = shown && !syncing;
 
   const up = useClear(-1);
   const down = useClear(1);
@@ -35,10 +40,10 @@ export const Home = () => {
 
   return (
     <View style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} scrollEnabled={phase === "home"} contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: 130 }}>
+      <PullToRefresh onRefresh={() => setSyncing(true)} onSettled={() => setSyncing(false)} scrollEnabled={phase === "home"} contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: 130 }}>
         <Animated.View style={up}>
           <Rise show={shown} delay={0}>
-            <Header live={shown} />
+            <Header live={live} />
           </Rise>
         </Animated.View>
 
@@ -48,7 +53,7 @@ export const Home = () => {
 
         <Animated.View style={down}>
           <Rise show={shown} delay={190} style={styles.block}>
-            <StatsRow live={shown} />
+            <StatsRow live={live} />
           </Rise>
         </Animated.View>
 
@@ -65,7 +70,7 @@ export const Home = () => {
             ))}
           </View>
         </Animated.View>
-      </ScrollView>
+      </PullToRefresh>
     </View>
   );
 };

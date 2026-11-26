@@ -145,7 +145,7 @@ export const Flight = ({ onLand }: FlightProps) => {
 
       <View style={[styles.bottom, { bottom }]}>
         <Rise show={live} delay={320} style={styles.sideRow}>
-          <MiniMap live={live} />
+          <MiniMap live={live} mission={mission} />
           <View style={styles.specs}>
             {SPECS.map((s) => (
               <Glass key={s} style={styles.spec}>

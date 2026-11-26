@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native";
 import { Onboarding } from "@/components/Onboarding";
 import { Splash } from "@/components/Splash";
 import { router } from "expo-router";
-import { AUTOPILOT, AUTOPILOT_TOUR } from "@/constants/data";
+import { AUTOPILOT, AUTOPILOT_PULL, AUTOPILOT_TOUR } from "@/constants/data";
 import { useFlightControl } from "@/hooks/useFlightControl";
 import { Flight } from "@/screens/Flight";
 import { useFlightStore } from "@/stores/useFlightStore";
@@ -36,6 +36,7 @@ export const Stage = ({ children }: StageProps) => {
       setTimeout(() => router.navigate("/home"), 12000);
       return;
     }
+    if (AUTOPILOT_PULL) return;
     const { setMission, cue } = useFlightStore.getState();
     setTimeout(() => setMission("orbit"), 2600);
     setTimeout(() => setMission("track"), 3900);

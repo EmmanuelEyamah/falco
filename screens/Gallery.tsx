@@ -2,13 +2,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Search } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { Extrapolation, interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CaptureCard } from "@/components/Gallery/CaptureCard";
 import { Viewer } from "@/components/Gallery/Viewer";
 import { Rise } from "@/components/Rise";
 import { Chips } from "@/components/ui/Chips";
 import { Press } from "@/components/ui/Press";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { CAPTURES, GALLERY_FILTERS, IMAGES, type CaptureItem } from "@/constants/data";
 import { useShown } from "@/hooks/useShown";
 import { useFlightStore } from "@/stores/useFlightStore";
@@ -25,9 +26,9 @@ export const Gallery = () => {
   const [open, setOpen] = useState<CaptureItem | null>(null);
   const scrollY = useSharedValue(0);
 
-  const onScroll = useAnimatedScrollHandler((e) => {
-    scrollY.value = e.contentOffset.y;
-  });
+  // During a sync the cards step out, then deal themselves back in.
+  const [syncing, setSyncing] = useState(false);
+  const dealt = shown && !syncing;
 
   // Photographs taken in the flight view land at the front of the roll.
   const all = useMemo<CaptureItem[]>(() => {
@@ -41,12 +42,12 @@ export const Gallery = () => {
   const toggle = (id: string) => setFavourites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   const hero = useAnimatedStyle(() => ({
-    transform: [{ translateY: interpolate(scrollY.value, [-200, 0, 300], [-60, 0, 90], Extrapolation.CLAMP) }, { scale: interpolate(scrollY.value, [-200, 0], [1.5, 1.12], Extrapolation.CLAMP) }],
+    transform: [{ translateY: interpolate(scrollY.value, [-200, 0, 300], [0, 0, 90], Extrapolation.CLAMP) }, { scale: interpolate(scrollY.value, [-200, 0], [1.24, 1.12], Extrapolation.CLAMP) }],
   }));
 
   return (
     <View style={styles.screen}>
-      <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 130 }}>
+      <PullToRefresh onRefresh={() => setSyncing(true)} onSettled={() => setSyncing(false)} scrollY={scrollY} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 130 }}>
         <Rise show={shown} delay={0} style={styles.hero}>
           <Animated.View style={[styles.fill, hero]}>
             <Image source={IMAGES.valley} style={styles.fill} resizeMode="cover" />
@@ -85,7 +86,7 @@ export const Gallery = () => {
             {columns.map((column, c) => (
               <View key={c} style={styles.column}>
                 {column.map((item, i) => (
-                  <Rise key={`${filter}-${item.id}`} show={shown} delay={240 + (i * 2 + c) * 70}>
+                  <Rise key={`${filter}-${item.id}`} show={dealt} delay={(syncing ? 0 : 240) + (i * 2 + c) * 70}>
                     <CaptureCard item={item} favourite={favourites.includes(item.id)} tall={(i + c) % 2 === 0} onOpen={setOpen} onFavourite={toggle} />
                   </Rise>
                 ))}
@@ -93,7 +94,7 @@ export const Gallery = () => {
             ))}
           </View>
         )}
-      </Animated.ScrollView>
+      </PullToRefresh>
       <Viewer item={open} onClose={() => setOpen(null)} />
     </View>
   );

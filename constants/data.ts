@@ -22,6 +22,8 @@ export const CRUISE = { altitude: 120, speed: 38, distance: 842, heading: 284 } 
 export const AUTOPILOT = !!process.env.EXPO_PUBLIC_AUTOPILOT;
 /** EXPO_PUBLIC_AUTOPILOT=tour walks the tabs instead of flying. */
 export const AUTOPILOT_TOUR = process.env.EXPO_PUBLIC_AUTOPILOT === "tour";
+/** EXPO_PUBLIC_AUTOPILOT=pull plays one pull-to-refresh on the home screen. */
+export const AUTOPILOT_PULL = process.env.EXPO_PUBLIC_AUTOPILOT === "pull";
 
 export const ONBOARDING = [
   { key: "reach", index: "01", eyebrow: "RANGE", title: "Fly further.\nSee everything.", body: "Twelve kilometres of live 4K video, steady in winds that ground other drones." },
@@ -33,6 +35,12 @@ export const IMAGES = {
   valley: require("@/assets/img/valley.jpg"),
   coast: require("@/assets/img/coast.jpg"),
   dunes: require("@/assets/img/dunes.jpg"),
+  ridge: require("@/assets/img/ridge.jpg"),
+  falls: require("@/assets/img/falls.jpg"),
+  terraces: require("@/assets/img/terraces.jpg"),
+  lagoon: require("@/assets/img/lagoon.jpg"),
+  city: require("@/assets/img/city.jpg"),
+  lake: require("@/assets/img/lake.jpg"),
 } as const;
 
 export type ImageKey = keyof typeof IMAGES;
@@ -51,12 +59,15 @@ export interface CaptureItem {
 }
 
 export const CAPTURES: CaptureItem[] = [
-  { id: "c1", title: "Valley at dawn", place: "Lauterbrunnen", kind: "photo", image: "valley", focus: { scale: 1, x: 0, y: 0 }, favourite: true },
+  { id: "c1", title: "Ridge at last light", place: "Aiguille du Midi", kind: "photo", image: "ridge", focus: { scale: 1, x: 0, y: 0 }, favourite: true },
   { id: "c2", title: "Coast road", place: "Madeira", kind: "video", image: "coast", focus: { scale: 1, x: 0, y: 0 }, length: "0:42" },
-  { id: "c3", title: "Empty quarter", place: "Liwa", kind: "photo", image: "dunes", focus: { scale: 1, x: 0, y: 0 } },
-  { id: "c4", title: "River bend", place: "Lauterbrunnen", kind: "video", image: "valley", focus: { scale: 2.1, x: 0, y: -0.28 }, length: "1:18", favourite: true },
-  { id: "c5", title: "Breakers", place: "Madeira", kind: "photo", image: "coast", focus: { scale: 2.2, x: 0.2, y: 0.22 } },
-  { id: "c6", title: "Dune lines", place: "Liwa", kind: "video", image: "dunes", focus: { scale: 2, x: -0.18, y: -0.2 }, length: "0:27" },
+  { id: "c3", title: "Skógar falls", place: "Iceland", kind: "photo", image: "falls", focus: { scale: 1, x: 0, y: 0 }, favourite: true },
+  { id: "c4", title: "Blue hour", place: "Downtown", kind: "video", image: "city", focus: { scale: 1, x: 0, y: 0 }, length: "1:18" },
+  { id: "c5", title: "Hidden lagoon", place: "Maldives", kind: "photo", image: "lagoon", focus: { scale: 1, x: 0, y: 0 } },
+  { id: "c6", title: "Rice terraces", place: "Sa Pa", kind: "video", image: "terraces", focus: { scale: 1, x: 0, y: 0 }, length: "0:27", favourite: true },
+  { id: "c7", title: "Autumn lake", place: "Dolomites", kind: "photo", image: "lake", focus: { scale: 1, x: 0, y: 0 } },
+  { id: "c8", title: "Empty quarter", place: "Liwa", kind: "photo", image: "dunes", focus: { scale: 1, x: 0, y: 0 } },
+  { id: "c9", title: "Valley at dawn", place: "Lauterbrunnen", kind: "video", image: "valley", focus: { scale: 1, x: 0, y: 0 }, length: "0:54" },
 ];
 
 export const GALLERY_FILTERS = ["See all", "Photos", "Videos", "Favourites"] as const;
